@@ -1,10 +1,10 @@
-# Upload only the working website; keep notes, tools and backups local.
-/*
-!index.html
-!generator.js
-!variations.json
-!app/
-!lib/
-!examples/
-!vercel.json
-!.vercelignore
+# Exclude local working files only; include all runtime files by default.
+backups
+tools
+AGENTS.md
+SPEC.md
+VERIFY.md
+CHANGELOG.md
+README.md
+CLAUDE.md
+GEMINI.md
