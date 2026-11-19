@@ -1,0 +1,10 @@
+# Upload only the working website; keep notes, tools and backups local.
+/*
+!index.html
+!generator.js
+!variations.json
+!app/
+!lib/
+!examples/
+!vercel.json
+!.vercelignore
