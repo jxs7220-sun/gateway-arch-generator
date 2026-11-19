@@ -13,13 +13,13 @@ export const parameters = {
   roofOverhang: { label: 'Roof Overhang', value: 2, min: 1, max: 4, step: 0.5, type: 'length', help: 'Horizontal extension past each of the four exterior walls.' },
   upperRailing: { label: 'Upper-floor Railing', value: false, help: 'Simple study railings on both faces of valid upper openings; not a verified guardrail design.' },
   groundHeight: { label: 'Ground floor height', value: 20, min: 10, max: 24, step: 0.5, type: 'length' },
-  groundFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON scales arch heights and rises by available floor height; widths stay unchanged.' },
+  groundFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON: changing floor height scales this floor\'s arch heights and rises; widths stay fixed. OFF: arch sizes stay unchanged. Warnings flag openings that no longer fit.' },
   groundArches: { label: 'Ground floor arches', value: 1, min: 1, max: 5, step: 1 },
   secondHeight: { label: 'Second floor height', value: 12, min: 10, max: 24, step: 0.5, type: 'length', help: 'Used when there are at least two floors.' },
-  secondFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON scales arch heights and rises by available floor height; widths stay unchanged.' },
+  secondFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON: changing floor height scales this floor\'s arch heights and rises; widths stay fixed. OFF: arch sizes stay unchanged. Warnings flag openings that no longer fit.' },
   secondArches: { label: 'Second floor arches', value: 3, min: 1, max: 5, step: 1, help: 'Used when there are at least two floors.' },
   thirdHeight: { label: 'Third floor height', value: 12, min: 10, max: 24, step: 0.5, type: 'length', help: 'Used only when there are three floors.' },
-  thirdFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON scales arch heights and rises by available floor height; widths stay unchanged.' },
+  thirdFloorLock: { label: 'Lock Floor Proportions', value: true, help: 'ON: changing floor height scales this floor\'s arch heights and rises; widths stay fixed. OFF: arch sizes stay unchanged. Warnings flag openings that no longer fit.' },
   thirdArches: { label: 'Third floor arches', value: 3, min: 1, max: 5, step: 1, help: 'Used only when there are three floors.' },
 };
 
@@ -36,7 +36,7 @@ for (let f = 0; f < 3; f++) {
   for (let a = 1; a <= 5; a++) {
     const original = f === 0 ? a === 1 : a <= 3;
     const values = original ? (f === 0 ? [26, 19, 8] : [12, 11, 5.5]) : [4, f === 0 ? 10 : 9, 2];
-    parameters[`${FLOOR_KEYS[f]}Arch${a}Lock`] = { label: 'Lock Arch Proportions', value: false, help: 'ON links width, clear height and rise when any one of the three dimensions changes.' };
+    parameters[`${FLOOR_KEYS[f]}Arch${a}Lock`] = { label: 'Lock Arch Proportions', value: false, help: 'ON: changing width, clear height or rise scales all three together for this arch. OFF: edit each dimension independently. Other arches stay unchanged.' };
     ['Width', 'Height', 'Rise'].forEach((field, i) => {
       parameters[`${FLOOR_KEYS[f]}Arch${a}${field}`] = {
         label: ['Clear Width', 'Clear Height', 'Arch Rise'][i],
@@ -352,15 +352,27 @@ export function parameterSections(p) {
   const key = FLOOR_KEYS[FLOOR_NAMES.indexOf(selection.selectedFloor)];
   const arch = `${key}Arch${Number(selection.selectedArch.split(' ')[1])}`;
   return [
-    { id: 'building', label: 'Building', keys: ['floors', { label: 'Facade Width · fixed', value: WIDTH, type: 'length' }, 'depth'] },
+    { id: 'building', label: 'Building', keys: [
+      { note: 'Control the overall building, including the number of floors and gateway depth.' },
+      'floors', { label: 'Facade Width · fixed', value: WIDTH, type: 'length' }, 'depth',
+    ] },
     { id: 'floor', label: 'Floors & Arches', keys: [
-      'selectedFloor', `${key}Height`, `${key}FloorLock`, `${key}Arches`, `${key}AutoFit`,
+      { note: 'Choose a floor to adjust its height and arches. Select an individual arch to edit its dimensions.' },
+      'selectedFloor', `${key}Height`, `${key}FloorLock`,
+      { note: 'ON: arch heights and rises scale with floor height; widths stay fixed. OFF: arch sizes stay unchanged.' },
+      `${key}Arches`, `${key}AutoFit`,
       { note: 'Auto Fit refits widths on count changes; OFF keeps sizes. Fit Widths Now runs once. The 4 ft minimum may limit ratios; heights stay independent.' },
       { action: 'fitSelectedArches', label: 'Fit Widths Now' },
-      { heading: 'Arches on this floor' }, 'selectedArch', `${arch}Width`, `${arch}Height`, `${arch}Rise`, `${arch}Lock`,
+      { heading: 'Arches on this floor' },
+      { note: 'Each arch can be edited individually. Choose an arch below; Clear Width, Clear Height and Arch Rise affect only that arch.' },
+      'selectedArch', `${arch}Width`, `${arch}Height`, `${arch}Rise`, `${arch}Lock`,
+      { note: 'ON: width, clear height and rise change together. OFF: edit each dimension separately.' },
       { action: 'copySelectedArch', label: 'Copy Arch' }, { action: 'pasteSelectedArch', label: 'Paste Arch' },
     ] },
-    { id: 'details', label: 'Roof & Details', keys: ['roofType', 'roofPitch', 'roofOverhang', 'upperRailing'] },
+    { id: 'details', label: 'Roof & Details', keys: [
+      { note: 'Customize the roof shape, pitch, overhang, and upper-floor railings.' },
+      'roofType', 'roofPitch', 'roofOverhang', 'upperRailing',
+    ] },
   ];
 }
 
