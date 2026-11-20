@@ -151,3 +151,8 @@ Format:
 
 
 
+
+
+## Display-label correction
+
+At the user’s request, the published featured design named V7 displays as V4 and featured labels sort numerically. This is an in-memory presentation change only: variations.json, internal numeric IDs, images, saved parameters, geometry and chosen V6 are unchanged.

@@ -1104,7 +1104,11 @@ async function loadFeatured() {
     const data = await r.json();
     const list = Array.isArray(data) ? data : (data && Array.isArray(data.variations) ? data.variations : []);
     S.featured = list.filter(validVariation).slice(0, 24)
-      .map((v) => ({ ...v, name: String(v.name || `V${v.n}`).slice(0, 16) }));
+      .map((v) => {
+        const name = String(v.name || `V${v.n}`).slice(0, 16);
+        return { ...v, name: name === 'V7' ? 'V4' : name };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
   } catch {
     S.featured = [];
   }
